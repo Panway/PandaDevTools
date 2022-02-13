@@ -1,16 +1,19 @@
 # iOS Developer Tools
 
-## Setup 使用前配置
+## Install or download 安装或下载
 
 方式一：
 
-您可以使用wget或者curl下载 [xcode_config.sh](https://raw.githubusercontent.com/Panway/PandaDevTools/main/iOS/xcode_config.sh) 或ruby脚本到您项目的根目录，然后参考下一节的使用说明。
+您可以使用curl或者wget下载 [xcode_config.sh](https://raw.githubusercontent.com/Panway/PandaDevTools/main/iOS/xcode_config.sh) 脚本到您项目的根目录，然后参考下一节的使用说明。
 
 ```bash
-# 使用 wget 下载到当前iOS工程根目录
+curl https://raw.githubusercontent.com/Panway/PandaDevTools/main/iOS/xcode_config.sh -o xcode_config.sh
+```
+
+or
+
+```bash
 wget https://raw.githubusercontent.com/Panway/PandaDevTools/main/iOS/xcode_config.sh
-# 在当前iOS工程根目录使用：
-sh xcode_config.sh set_build_number 2022
 ```
 
 方式二：
@@ -28,16 +31,18 @@ xcode_config set_build_number 2022
 
 ## Usage 使用
 
+如果安装上面的方法安装到`/usr/local/bin`,以下的`sh xcode_config.sh`可以换成`xcode_config`
+
+execute shell script 执行脚本命令
+
 ```bash
-bash xcode_config.sh <command_name>
+sh xcode_config.sh <command_name>
 ```
 
 or
 
 ```bash
-# only first time 仅首次
-chmod +x xcode_config.sh
-# execute shell script 执行脚本命令
+# 这种方式首次需要增加可执行权限：chmod +x xcode_config.sh
 ./xcode_config.sh <command_name>
 ```
 

@@ -18,17 +18,17 @@ fileList.each do |file_name|
 end
 
 project_path = "#{Dir.pwd}/#{project_name}"
-puts "project_name:", project_name, "target_name:", target_name
+puts "project_name: #{project_name.bold}, target_name: #{target_name}"
 
 # 命令行带参数的话
 param0 = ARGV[0]
 param1 = ARGV[1]
 param2 = ARGV[2]
 param3 = ARGV[3]
-puts "---------- param list ----------"
-puts param0
-puts param1
-puts param2
+# puts "---------- param list ----------"
+# puts param0
+# puts param1
+# puts param2
 
 order_name = -1
 if param0.instance_of? String
@@ -71,9 +71,9 @@ define_method :modifyProject do |*arg|
   begin
     configValue = JSON.parse(arg[1])
   rescue JSON::ParserError => e
-    puts "ParserError"
+    # puts "Parse_JSON_Error"
   end
-  puts "Modifying #{configKey} to #{configValue}"
+  # puts "Modifying #{configKey} to #{configValue}"
   if configValue == nil
     puts "第二个参数不能为空。second param can't be nil!"
     return
@@ -93,7 +93,7 @@ define_method :modifyProject do |*arg|
         else
           config.build_settings[configKey] = configValue
         end
-        puts "`#{configKey}` has been modified to `#{configValue}` for #{config.name}"
+        puts "`#{configKey.to_s.bold}` has been modified to `#{configValue.to_s.green}` for #{config.name}"
       end
     end
   end
@@ -110,6 +110,17 @@ ruby xcode_project_setting.rb GOOD 12345 release -f
 or:
 ruby xcode_project_setting.rb GOOD 12345 all -f
 "
+end
+
+# 将终端文本输出着色 colorize the text output to a terminal https://stackoverflow.com/a/16363159/4493393
+class String
+  def red; "\e[31m#{self}\e[0m" end
+  def green; "\e[32m#{self}\e[0m" end
+  def yellow; "\e[33m#{self}\e[0m" end
+  def blue; "\e[34m#{self}\e[0m" end
+  def pink; "\e[35m#{self}\e[0m" end
+  def cyan; "\e[36m#{self}\e[0m" end
+  def bold; "\e[1m#{self}\e[22m" end
 end
 
 # ---------- main ----------
@@ -149,6 +160,6 @@ else
   # config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ['$(inherited)', 'PUBLIC_PROJECT=1','USE_POLYVSDK=0']
   # 脚本用法
   # ruby xcode_project_setting.rb GCC_PREPROCESSOR_DEFINITIONS '["$(inherited)", "PUBLIC_PROJECT=1", "USE_POLYVSDK=0"]'
-  puts "不支持的命令，已帮您尝试设置`#{param0}`的值。 \nunsupported command, try to set `#{param0}`'s value."
+  puts "不支持的命令:<#{param0} #{param1} #{param2}>，已帮您尝试设置`#{param0.bold}`的值。 \nunsupported command, try to set `#{param0.bold}`'s value."
   modifyProject(param0, param1)
 end
