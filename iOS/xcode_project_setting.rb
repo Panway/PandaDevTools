@@ -1,6 +1,6 @@
 # 使用方法：cd到脚本所在目录，终端运行`ruby xcode_project_setting.rb set_app_version 2.5.0 等`
 require "xcodeproj"
-# require 'json'
+require "json"
 # require 'scanf'
 # require "timeout"
 
@@ -61,12 +61,18 @@ project_path = full_proj_path    # 工程的全路径
 project = Xcodeproj::Project.open(project_path)
 
 # ---------- method list ----------
-
+# sample https://github.com/CocoaPods/Xcodeproj/blob/master/spec/project/object/build_configuration_spec.rb
 # 这样定义方法才能访问project这个变量
 define_method :modifyProject do |*arg|
   # def modifyProject(configKey, configValue)
   configKey = arg[0]
   configValue = arg[1]
+  # 如果值为 JSON 对象，则不要将其修改为字符串。if value is JSON Object, don't modify it as string
+  begin
+    configValue = JSON.parse(arg[1])
+  rescue JSON::ParserError => e
+    puts "ParserError"
+  end
   puts "Modifying #{configKey} to #{configValue}"
   if configValue == nil
     puts "第二个参数不能为空。second param can't be nil!"
@@ -137,8 +143,12 @@ elsif param0.eql? "build_version_plus_one"
   modifyProject("CURRENT_PROJECT_VERSION", "plus_one")
 else
   # 常用设置：DEVELOPMENT_TEAM、CODE_SIGN_IDENTITY、CODE_SIGN_STYLE
+  # 实际起作用的代码
   # config.build_settings["CODE_SIGN_IDENTITY"] = "iPhone Distribution"
   # config.build_settings["CODE_SIGN_STYLE"] = "Manual"
+  # config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ['$(inherited)', 'PUBLIC_PROJECT=1','USE_POLYVSDK=0']
+  # 脚本用法
+  # ruby xcode_project_setting.rb GCC_PREPROCESSOR_DEFINITIONS '["$(inherited)", "PUBLIC_PROJECT=1", "USE_POLYVSDK=0"]'
   puts "不支持的命令，已帮您尝试设置`#{param0}`的值。 \nunsupported command, try to set `#{param0}`'s value."
   modifyProject(param0, param1)
 end
