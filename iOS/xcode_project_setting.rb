@@ -1,4 +1,12 @@
-# 使用方法：cd到脚本所在目录，终端运行`ruby xcode_project_setting.rb set_app_version 2.5.0 等`
+# 使用方法：将此脚本放到TikTok.xcodeproj同级目录，cd到此目录，终端运行如下示例命令：
+# Usage: Put this script in the directory where TikTok.xcodeproj is located, then cd to this directory, and run the following sample command on the terminal:
+# ruby xcode_project_setting.rb set_app_version 2.5.0
+# example: modify release mode config only
+# ruby xcode_project_setting.rb DEVELOPMENT_TEAM XXXXXXXXXX release
+# example: modify specific target
+# ruby xcode_project_setting.rb DEVELOPMENT_TEAM XXXXXXXXXX all QBImagePickerController-QBImagePicker
+
+
 require "xcodeproj"
 require "json"
 # require 'scanf'
@@ -69,22 +77,34 @@ define_method :modifyProject do |*arg|
   configValue = arg[1]
   # 如果值为 JSON 对象，则不要将其修改为字符串。if value is JSON Object, don't modify it as string
   begin
+    if arg[1] == nil
+      puts "第二个参数值不能为空，中断执行。The second parameter value cannot be null, aborting execution".red
+      return
+    end
     configValue = JSON.parse(arg[1])
   rescue JSON::ParserError => e
     # puts "Parse_JSON_Error"
   end
   # puts "Modifying #{configKey} to #{configValue}"
   if configValue == nil
-    puts "第二个参数不能为空。second param can't be nil!"
+    puts "第二个参数不能为空。The second param can't be nil!"
     return
   end
   project.targets.each do |target|
     target.build_configurations.each do |config|
+      # puts "Whether to modify #{configKey} to #{configValue}? target.name =#{target.name} target_name = #{target_name}"
       # modify when param2 is nil or param2 == config.name
-      if target.name == target_name && (param2 == nil || param2 == "all" || param2.downcase == config.name.downcase)
+      if target.name == target_name # && (param2 == nil || param2 == "all" || param2.downcase == config.name.downcase)
+        if param2 != nil && param2 != "all" && param2.downcase != config.name.downcase
+          # you can ruby xcode_project_setting.rb DEVELOPMENT_TEAM XXXXXXXXXX
+          # or      ruby xcode_project_setting.rb DEVELOPMENT_TEAM XXXXXXXXXX all
+          # or      ruby xcode_project_setting.rb DEVELOPMENT_TEAM XXXXXXXXXX release
+          return
+        end
         if config.build_settings[configKey] == nil
           keyNotExistTips(configKey)
           if param3 != "-f"
+            puts "不设置#{configKey}的值"
             return
           end
         end
@@ -94,6 +114,12 @@ define_method :modifyProject do |*arg|
           config.build_settings[configKey] = configValue
         end
         puts "`#{configKey.to_s.bold}` has been modified to `#{configValue.to_s.green}` for #{config.name}"
+      else
+        #当修改Pods工程里的bundle类型的编译配置时用到。Used when modifying the bundle build configuration in the Pods project
+        if target.name == param3 #config.build_settings["WRAPPER_EXTENSION"] == "bundle"
+          config.build_settings[configKey] = configValue #修改
+          puts "`#{configKey.to_s.bold}` has been modified to `#{configValue.to_s.green}` for #{config.name}"
+        end
       end
     end
   end
